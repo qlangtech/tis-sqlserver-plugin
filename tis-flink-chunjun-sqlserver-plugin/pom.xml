@@ -13,6 +13,16 @@
 
 
     <artifactId>tis-flink-chunjun-sqlserver-plugin</artifactId>
+    <packaging>tpi</packaging>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.qlangtech.tis.plugins</groupId>
+            <artifactId>tis-chunjun-base-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+    </dependencies>
 
 
 </project>
