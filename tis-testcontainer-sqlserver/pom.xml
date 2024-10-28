@@ -135,5 +135,15 @@
         </dependency>
     </dependencies>
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>com.qlangtech.tis</groupId>
+                <artifactId>tis-archetype-run-plugin</artifactId>
+                <version>${project.version}</version>
+            </plugin>
+        </plugins>
+    </build>
+
 
 </project>

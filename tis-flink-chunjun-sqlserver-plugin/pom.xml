@@ -22,6 +22,23 @@
             <version>${project.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.dtstack.chunjun</groupId>
+            <artifactId>chunjun-connector-sqlserver</artifactId>
+            <version>${chunjun.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.dtstack.chunjun</groupId>
+                    <artifactId>chunjun-connector-jdbc-base</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>com.qlangtech.tis.plugins</groupId>
+            <artifactId>tis-scala-compiler</artifactId>
+        </dependency>
+
     </dependencies>
 
 

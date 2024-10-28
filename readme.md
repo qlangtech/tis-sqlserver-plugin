@@ -6,3 +6,8 @@
 * tis-testcontainer-sqlserver： 提供基于testcontainer的测试基础组件，为`tis-flink-cdc-sqlserver-plugin`和`tis-flink-chunjun-sqlserver-plugin`单元测试支持
 
 ## 使用
+
+```shell
+mvn tis:run -Dtis.network.interface.preferred=en0
+```
+
