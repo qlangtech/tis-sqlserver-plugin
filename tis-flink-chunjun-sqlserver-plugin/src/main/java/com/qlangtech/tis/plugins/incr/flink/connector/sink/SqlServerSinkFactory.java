@@ -14,7 +14,6 @@ import com.qlangtech.tis.plugin.ds.DataSourceFactory;
 import com.qlangtech.tis.plugins.incr.flink.chunjun.common.ColMetaUtils;
 import com.qlangtech.tis.plugins.incr.flink.connector.ChunjunSinkFactory;
 import com.qlangtech.tis.runtime.module.misc.IControlMsgHandler;
-import com.dtstack.chunjun.connector.sqlserver.dialect.SqlserverDialect;
 
 /**
  * reference: com.qlangtech.tis.plugins.incr.flink.connector.sink.MySQLSinkFactory
@@ -29,7 +28,7 @@ public class SqlServerSinkFactory extends ChunjunSinkFactory {
 
     @Override
     protected Class<? extends JdbcDialect> getJdbcDialectClass() {
-        return SqlserverDialect.class;
+        return TISSqlServerDialect.class;
     }
 
     @Override

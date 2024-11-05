@@ -11,3 +11,8 @@
 mvn tis:run -Dtis.network.interface.preferred=en0
 ```
 
+## Flink启动
+
+需要在本机启动，并且在`conf/flink-conf.yaml`配置文件中添加JVM参数`-Dskip_classloader_factory_creation=true -Ddata.dir=${USER_HOME}/tis_tmp/uber-data/data`
+
+

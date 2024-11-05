@@ -51,9 +51,10 @@ public abstract class SqlServerSourceTestBase extends AbstractTestBase {
         Startables.deepStart(Stream.of(container)).join();
 
         if (container instanceof TISMSSQLServerContainer) {
-            return this.dsFactory = (BasicDataSourceFactory) ((TISMSSQLServerContainer) container).createMySqlDataSourceFactory(dataxName);
+            return this.dsFactory = (BasicDataSourceFactory) ((TISMSSQLServerContainer) container).getDataSourceFactory(dataxName);
         } else {
-            this.dsFactory = (BasicDataSourceFactory) TISMSSQLServerContainer.getBasicDataSourceFactory(dataxName, TIS.get().getDescriptor(TOKEN_MySQLV8DataSourceFactory), container, false);
+            this.dsFactory = (BasicDataSourceFactory)
+                    TISMSSQLServerContainer.getBasicDataSourceFactory(dataxName, TIS.get().getDescriptor(TOKEN_MySQLV8DataSourceFactory), container, false);
             this.dsFactory.initializeDB(StringUtils.substring(TISMSSQLServerContainer.INITIAL_DB_SQL, 1));
             return dsFactory;
         }
