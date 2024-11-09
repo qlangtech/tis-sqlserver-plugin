@@ -12,24 +12,30 @@ import com.qlangtech.tis.plugins.incr.flink.cdc.AbstractRowDataMapper;
 import java.util.Objects;
 
 /**
+ * SqlServer 基于Flink-CDC启动入口
+ *
  * @create: 2024-10-23 14:23
  **/
 public class FlinkCDCSqlServerSourceFactory extends MQListenerFactory {
     private transient IConsumerHandle consumerHandle;
+
     @Override
     public IFlinkColCreator<FlinkCol> createFlinkColCreator() {
         return (meta, colIndex) -> {
             return meta.getType().accept(new SqlServerCDCTypeVisitor(meta, colIndex));
         };
     }
+
     public IConsumerHandle getConsumerHander() {
         Objects.requireNonNull(this.consumerHandle, "prop consumerHandle can not be null");
         return this.consumerHandle;
     }
+
     @Override
     public void setConsumerHandle(IConsumerHandle consumerHandle) {
         this.consumerHandle = consumerHandle;
     }
+
     @Override
     public IMQListener create() {
         return new FlinkCDCSqlServerSourceFunction(this);
