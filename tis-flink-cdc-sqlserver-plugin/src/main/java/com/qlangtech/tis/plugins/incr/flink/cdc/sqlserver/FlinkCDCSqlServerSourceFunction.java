@@ -13,8 +13,7 @@ import org.apache.flink.api.common.JobExecutionResult;
 import java.util.List;
 
 /**
- * 具体实现可参考： https://github.com/qlangtech/plugins/blob/master/tis-incr/tis-flink-cdc-mysql-plugin/src/main/java/com/qlangtech/tis/plugins/incr/flink/cdc/mysql/FlinkCDCMysqlSourceFunction.java
- * @author: 百岁（baisui@qlangtech.com）
+ * 具体实现可参考： https://gitee.com/qlangtech/plugins/blob/master/tis-incr/tis-flink-cdc-mysql-plugin/src/main/java/com/qlangtech/tis/plugins/incr/flink/cdc/mysql/FlinkCDCMysqlSourceFunction.java
  * @create: 2024-10-23 14:26
  **/
 public class FlinkCDCSqlServerSourceFunction implements IMQListener<JobExecutionResult> {
@@ -30,7 +29,8 @@ public class FlinkCDCSqlServerSourceFunction implements IMQListener<JobExecution
     }
 
     @Override
-    public JobExecutionResult start(TargetResName dataxName, IDataxReader rdbmsReader, List<ISelectedTab> tabs, IDataxProcessor dataXProcessor) throws MQConsumeException {
+    public JobExecutionResult start(TargetResName dataxName
+            , IDataxReader rdbmsReader, List<ISelectedTab> tabs, IDataxProcessor dataXProcessor) throws MQConsumeException {
         // 具体实现可参考
         return null;
     }

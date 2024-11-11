@@ -50,12 +50,6 @@ public class TestSqlServerSinkFactory extends TestFlinkSinkExecutor {
         return sqlServerDS;
     }
 
-//    @Override
-//    protected void startTestSinkSync(Map<TableAlias, TabSinkFunc<RowData>> sinkFunction) {
-//
-//
-//    }
-
     /**
      * 相关表
      * <pre>
