@@ -4,7 +4,10 @@ import com.qlangtech.plugins.incr.flink.slf4j.TISLoggerConsumer;
 import com.qlangtech.tis.TIS;
 import com.qlangtech.tis.coredefine.module.action.TargetResName;
 import com.qlangtech.tis.extension.Descriptor;
+import com.qlangtech.tis.plugin.ds.DBConfig;
+import com.qlangtech.tis.plugin.ds.DSKey;
 import com.qlangtech.tis.plugin.ds.DataSourceFactory;
+import com.qlangtech.tis.plugin.ds.DataSourceFactoryPluginStore;
 import com.qlangtech.tis.plugin.ds.SplitTableStrategy;
 import com.qlangtech.tis.realtime.utils.NetUtils;
 import org.junit.Assert;
@@ -53,9 +56,26 @@ public class TISMSSQLServerContainer extends MSSQLServerContainer {
 
     @Override
     public Connection createConnection(String queryString) throws SQLException, NoDriverFoundException {
-        Connection conn = super.createConnection(queryString);
-        initializeSqlServerTable(conn, INITIALIZE_DB_NAME);
-        return conn;
+        try {
+            Connection[] conn = new Connection[1];
+          //  conn[0] = super.createConnection(queryString);
+            final String url = constructUrlForConnection(queryString);
+            DataSourceFactory dataSourceFactory = this.getDataSourceFactory(new TargetResName("x"));
+            // dataSourceFactory.visitFirstConnection();
+
+            conn[0] = dataSourceFactory.getConnection(url, false).getConnection();
+
+//            DBConfig dbConfig = dataSourceFactory.getDbConfig();
+//            dbConfig.vistDbName((config, jdbcUrl, ip, databaseName) -> {
+//
+//                return true;
+//            });
+
+            initializeSqlServerTable(conn[0], INITIALIZE_DB_NAME);
+            return conn[0];
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static final TISMSSQLServerContainer createContainer() {
@@ -66,6 +86,9 @@ public class TISMSSQLServerContainer extends MSSQLServerContainer {
                         .withEnv("MSSQL_AGENT_ENABLED", "true")
                         .withEnv("MSSQL_PID", "Standard")
                         .withLogConsumer(new TISLoggerConsumer(LOG));
+        LOG.info("Starting containers...");
+        Startables.deepStart(Stream.of(container)).join();
+        LOG.info("Containers are started.");
         return container;
     }
 
@@ -173,6 +196,17 @@ public class TISMSSQLServerContainer extends MSSQLServerContainer {
             dataSourceFactory = getBasicDataSourceFactory(resName
                     , TIS.get().getDescriptor("SqlServer2019DatasourceFactory")
                     , this, false);
+
+            TIS.dsFactoryPluginStoreGetter = (p) -> {
+                DSKey key = new DSKey(TIS.DB_GROUP_NAME, p, DataSourceFactory.class);
+                return new DataSourceFactoryPluginStore(key, false) {
+                    @Override
+                    public DataSourceFactory getPlugin() {
+                        return dataSourceFactory;
+                    }
+                };
+            };
+
         }
         return dataSourceFactory;
     }
@@ -190,15 +224,13 @@ public class TISMSSQLServerContainer extends MSSQLServerContainer {
 
     public static DataSourceFactory getBasicDataSourceFactory(TargetResName dataxName
             , Descriptor dataSourceFactoryDesc, JdbcDatabaseContainer container, boolean splitTabStrategy) {
-        LOG.info("Starting containers...");
-        Startables.deepStart(Stream.of(container)).join();
-        LOG.info("Containers are started.");
+
 
         Descriptor sqlServerDSFactory = dataSourceFactoryDesc;
         Assert.assertNotNull("desc of sqlServerDSFactory can not be null", sqlServerDSFactory);
 
         Descriptor.FormData formData = new Descriptor.FormData();
-        formData.addProp("name", "sqlserver");
+        formData.addProp("name", dataxName.getName());
         formData.addProp("dbName", INITIALIZE_DB_NAME// container.getDatabaseName()
         );
         // formData.addProp("nodeDesc", mySqlContainer.getHost());
@@ -215,7 +247,7 @@ public class TISMSSQLServerContainer extends MSSQLServerContainer {
 //                    , "com.qlangtech.tis.plugin.ds.split.NoneSplitTableStrategy", new Descriptor.FormData());
 //        }
 
-
+        formData.addProp("tabSchema", "dbo");
         formData.addProp("password", container.getPassword());
         formData.addProp("userName", container.getUsername());
         formData.addProp("port", String.valueOf(container.getMappedPort(MS_SQL_SERVER_PORT)));

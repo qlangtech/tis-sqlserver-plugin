@@ -1,1 +1,26 @@
-{}
+{
+  "independentBinLogMonitor": {
+    "label": "BinLog独立监听",
+    "dftVal": false,
+    "enum": [
+      {
+        "val": true,
+        "label": "是"
+      },
+      {
+        "val": false,
+        "label": "否"
+      }
+    ]
+  },
+  "startupOptions": {
+    "label": "起始位点",
+    "dftVal": "LatestOffset"
+  },
+  "timeZone": {
+    "label": "所在时区",
+    "dftVal": "com.qlangtech.tis.plugins.incr.flink.cdc.sqlserver.FlinkCDCSqlServerSourceFactory.dftZoneId()",
+    "enum": "com.qlangtech.tis.plugins.incr.flink.cdc.sqlserver.FlinkCDCSqlServerSourceFactory.availableZoneIds()",
+    "help": "设置MySQL服务端所在时区"
+  }
+}

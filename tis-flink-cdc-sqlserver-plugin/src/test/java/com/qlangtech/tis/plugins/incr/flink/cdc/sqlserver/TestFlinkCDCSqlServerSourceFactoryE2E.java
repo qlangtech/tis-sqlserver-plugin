@@ -2,6 +2,15 @@ package com.qlangtech.tis.plugins.incr.flink.cdc.sqlserver;
 
 import com.qlangtech.plugins.incr.flink.cdc.CDCTestSuitParams;
 import com.qlangtech.plugins.incr.flink.cdc.CDCTestSuitParams.Builder;
+import com.qlangtech.plugins.incr.flink.cdc.CUDCDCTestSuit;
+import com.qlangtech.plugins.incr.flink.cdc.IResultRows;
+import com.qlangtech.plugins.incr.flink.cdc.source.TestTableRegisterFlinkSourceHandle;
+import com.qlangtech.plugins.incr.flink.launch.TISFlinkCDCStreamFactory;
+import com.qlangtech.tis.coredefine.module.action.TargetResName;
+import com.qlangtech.tis.plugin.datax.common.BasicDataXRdbmsReader;
+import com.qlangtech.tis.plugin.ds.BasicDataSourceFactory;
+import com.qlangtech.tis.plugin.incr.TISSinkFactory;
+import com.qlangtech.tis.plugins.incr.flink.cdc.sqlserver.startup.LatestOffset;
 import org.junit.Test;
 import org.testcontainers.containers.JdbcDatabaseContainer;
 
@@ -13,7 +22,10 @@ public class TestFlinkCDCSqlServerSourceFactoryE2E extends SqlServerSourceTestBa
     private TISMSSQLServerContainer container = null;
 
     protected FlinkCDCSqlServerSourceFactory createCDCFactory() {
-        return new FlinkCDCSqlServerSourceFactory();
+        FlinkCDCSqlServerSourceFactory sqlServerSourceFactory = new FlinkCDCSqlServerSourceFactory();
+        sqlServerSourceFactory.timeZone = FlinkCDCSqlServerSourceFactory.dftZoneId();
+        sqlServerSourceFactory.startupOptions = new LatestOffset();
+        return sqlServerSourceFactory;
     }
 
     @Override
@@ -35,8 +47,33 @@ public class TestFlinkCDCSqlServerSourceFactoryE2E extends SqlServerSourceTestBa
      * @throws Exception
      */
     @Test()
-    public void testBaseTableWithSplit() throws Exception {
+    public void testBaseTable() throws Exception {
+        FlinkCDCSqlServerSourceFactory mysqlCDCFactory = createCDCFactory();
 
+
+        // final String tabName = "base";
+        TISFlinkCDCStreamFactory streamFactory = new TISFlinkCDCStreamFactory();
+        streamFactory.parallelism = 1;
+        CDCTestSuitParams suitParams = tabParamMap.get(tabBase);//new CDCTestSuitParams("base");
+        // Optional.of("_01")
+        CUDCDCTestSuit cdcTestSuit = new CUDCDCTestSuit(suitParams) {
+            @Override
+            protected BasicDataSourceFactory createDataSourceFactory(TargetResName dataxName, boolean useSplitTabStrategy) {
+                return (BasicDataSourceFactory) ((TISMSSQLServerContainer) getSqlServerContainer()).getDataSourceFactory(dataxName);
+            }
+
+            @Override
+            protected IResultRows createConsumerHandle(BasicDataXRdbmsReader dataxReader, String tabName, TISSinkFactory sinkFuncFactory) {
+                TestTableRegisterFlinkSourceHandle sourceHandle = new TestTableRegisterFlinkSourceHandle(tabName, cols);
+                sourceHandle.setSinkFuncFactory(sinkFuncFactory);
+                sourceHandle.setSourceStreamTableMeta(dataxReader);
+                sourceHandle.setStreamFactory(streamFactory);
+                sourceHandle.setSourceFlinkColCreator(mysqlCDCFactory.createFlinkColCreator());
+                return sourceHandle;
+            }
+        };
+
+        cdcTestSuit.startTest(mysqlCDCFactory);
     }
 
     /**
