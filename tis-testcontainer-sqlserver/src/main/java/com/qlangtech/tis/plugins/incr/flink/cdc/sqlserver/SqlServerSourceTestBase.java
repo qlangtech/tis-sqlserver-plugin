@@ -16,6 +16,7 @@ import org.junit.rules.TestRule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.JdbcDatabaseContainer;
+import org.testcontainers.containers.Network;
 import org.testcontainers.lifecycle.Startables;
 
 import java.util.Map;
@@ -25,12 +26,14 @@ import static org.apache.flink.cdc.connectors.mysql.testutils.MySqlContainer.TOK
 
 /**
  * // @see MySqlSourceTestBase
+ *
  * @create: 2024-10-23 15:33
  **/
 public abstract class SqlServerSourceTestBase extends AbstractTestBase {
 
     private static final Logger LOG = LoggerFactory.getLogger(SqlServerSourceTestBase.class);
-
+    @ClassRule
+    public static final Network NETWORK = Network.newNetwork();
     @ClassRule(order = 100)
     public static TestRule name = new TISApplySkipFlinkClassloaderFactoryCreation();
 
@@ -39,9 +42,9 @@ public abstract class SqlServerSourceTestBase extends AbstractTestBase {
     private BasicDataSourceFactory dsFactory;
 
     /**
-     * @see  org.testcontainers.containers.MSSQLServerContainer
      * @param dataxName
      * @return
+     * @see org.testcontainers.containers.MSSQLServerContainer
      */
     public BasicDataSourceFactory createDataSource(TargetResName dataxName) {
         if (this.dsFactory != null) {
